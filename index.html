@@ -82,6 +82,8 @@ th{color:var(--muted);font-size:12px}td.r,th.r{text-align:right;font-family:var(
 ul.plain{margin:6px 0 0;padding-left:20px}ul.plain li{margin:4px 0}
 .foot{font-size:12px;color:var(--muted);margin-top:18px}.foot a{color:var(--accent)}
 .card .vb{position:absolute;right:10px;top:10px}
+.nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
+.meta a.go{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:5px 10px;border-radius:8px;min-height:32px;line-height:22px}
 @media (prefers-reduced-motion:no-preference){.tab,.chip{transition:background .15s}}
 </style>
 </head>
@@ -100,6 +102,7 @@ ul.plain{margin:6px 0 0;padding-left:20px}ul.plain li{margin:4px 0}
 
   <div class="prog" id="prog"></div>
 
+  <div class="nav" id="nav"><span>현위치에서 길찾기 방식</span></div>
   <div class="tabs" role="tablist" id="tabs"></div>
   <div id="view"></div>
 
@@ -185,6 +188,9 @@ function yen(n){return "¥"+Math.round(n).toLocaleString("en-US");}
 var done={};try{var d0=JSON.parse(localStorage.getItem("tk_done")||"{}");if(d0&&typeof d0==="object")done=d0;}catch(e){}
 function save(){try{localStorage.setItem("tk_done",JSON.stringify(done));}catch(e){}}
 function vb(v){return v==="ok"?"<span class=\"pill ok\">확인됨</span>":v==="est"?"<span class=\"pill\">추정</span>":"<span class=\"pill warn\">출발 전 확인</span>";}
+var MODE="transit";try{var m0=localStorage.getItem("tk_mode");if(m0)MODE=m0;}catch(e){}
+function dir(q){return "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(q)+"&travelmode="+MODE;}
+function drawNav(){var n=$("nav");n.innerHTML="<span>현위치에서 길찾기 방식</span>";[["transit","대중교통"],["walking","도보"],["driving","자동차"]].forEach(function(x){var b=document.createElement("button");b.type="button";b.className="chip";b.setAttribute("aria-pressed",MODE===x[0]);b.textContent=x[1];b.onclick=function(){MODE=x[0];try{localStorage.setItem("tk_mode",MODE);}catch(e){}drawNav();drawView();};n.appendChild(b);});}
 function gm(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);}
 
 /* map */
@@ -221,7 +227,7 @@ function card(it){
   var h="<div class=\"card"+(chk?" checked":"")+"\" id=\"c-"+it.id+"\"><span class=\"vb\">"+vb(it.v)+"</span>";
   h+="<span class=\"tm\">"+esc(it.t)+" · "+esc(it.k)+"</span><span class=\"nm\">"+esc(it.nm)+"</span><span class=\"jp\">"+esc(it.jp)+"</span>";
   h+="<p>"+esc(it.d)+"</p><p class=\"tip\"><b>유의점</b> "+esc(it.tip)+"</p>";
-  h+="<div class=\"meta\"><span class=\"pr\">"+esc(it.pn||yen(it.p))+"</span><a href=\""+gm(it.q)+"\" target=\"_blank\" rel=\"noopener\">지도 보기 ↗</a></div>";
+  h+="<div class=\"meta\"><span class=\"pr\">"+esc(it.pn||yen(it.p))+"</span><a class=\"go\" href=\""+dir(it.q)+"\" target=\"_blank\" rel=\"noopener\">현위치에서 길찾기 ↗</a><a href=\""+gm(it.q)+"\" target=\"_blank\" rel=\"noopener\">지도 보기 ↗</a></div>";
   if(can)h+="<label class=\"done\"><input type=\"checkbox\" data-id=\""+it.id+"\""+(chk?" checked":"")+"> 다녀왔어요</label>";
   return h+"</div>";
 }
@@ -240,7 +246,7 @@ function drawView(){
   }else if(TAB==="food"){
     var cats=[["all","전체"],["udon","사누키 우동"],["tai","마쓰야마 향토요리"],["snack","간식"]];
     h+="<div class=\"chips\">";cats.forEach(function(c){h+="<button type=\"button\" class=\"chip\" data-c=\""+c[0]+"\" aria-pressed=\""+(CSEL===c[0])+"\">"+c[1]+"</button>";});h+="</div><div class=\"grid\">";
-    FOOD.forEach(function(f){if(CSEL!=="all"&&f.c!==CSEL)return;h+="<div class=\"item\">"+vb(f.v)+"<b>"+esc(f.n)+"</b><small>"+esc(f.j)+" · "+esc(f.a)+"</small><small>"+esc(f.d)+"</small><div class=\"pr\">"+esc(f.p)+"</div><p style=\"margin:6px 0 0;font-size:13.5px\">"+esc(f.t)+"</p><a style=\"color:var(--accent);font-weight:700;font-size:13px\" target=\"_blank\" rel=\"noopener\" href=\""+gm(f.j+" "+f.a)+"\">지도 보기 ↗</a></div>";});
+    FOOD.forEach(function(f){if(CSEL!=="all"&&f.c!==CSEL)return;h+="<div class=\"item\">"+vb(f.v)+"<b>"+esc(f.n)+"</b><small>"+esc(f.j)+" · "+esc(f.a)+"</small><small>"+esc(f.d)+"</small><div class=\"pr\">"+esc(f.p)+"</div><p style=\"margin:6px 0 0;font-size:13.5px\">"+esc(f.t)+"</p><a style=\"color:var(--accent);font-weight:700;font-size:13px\" target=\"_blank\" rel=\"noopener\" href=\""+dir(f.j+" "+f.a)+"\">현위치에서 길찾기 ↗</a> <a style=\"color:var(--accent);font-weight:700;font-size:13px\" target=\"_blank\" rel=\"noopener\" href=\""+gm(f.j+" "+f.a)+"\">지도 ↗</a></div>";});
     h+="</div><div class=\"warnbox\">영업시간과 휴무일은 기사에 없어 확인하지 못한 가게가 많습니다. 구글 지도에서 당일 영업 여부를 확인하세요.</div>";
   }else if(TAB==="cost"){
     h+="<h3 style=\"margin:8px 0\">이동·비용</h3><div class=\"tw\"><table><thead><tr><th>구간</th><th>수단</th><th>시간</th><th class=\"r\">요금</th></tr></thead><tbody>";
@@ -259,7 +265,7 @@ function drawView(){
   var cs=v.querySelectorAll("input[data-id]");for(var i=0;i<cs.length;i++){cs[i].onchange=function(){var id=this.getAttribute("data-id");if(this.checked)done[id]=1;else delete done[id];save();var c=$("c-"+id);if(c)c.classList.toggle("checked",this.checked);prog();};}
   var ch=v.querySelectorAll(".chip");for(var j=0;j<ch.length;j++){ch[j].onclick=function(){CSEL=this.getAttribute("data-c");drawView();};}
 }
-allSpots();drawMap();renderWarn();prog();drawTabs();drawView();
+allSpots();drawNav();drawMap();renderWarn();prog();drawTabs();drawView();
 $("foot").innerHTML="출처: <a href=\"https://dogo.jp/en/honkan.php\" target=\"_blank\" rel=\"noopener\">도고온천 공식</a> · <a href=\"https://www.matsuyamajo.jp/en/guide.html\" target=\"_blank\" rel=\"noopener\">마쓰야마성 공식</a> · <a href=\"http://www.my-kagawa.jp/static/en/ritsurin/access\" target=\"_blank\" rel=\"noopener\">리쓰린 공원</a> · <a href=\"https://ekitan.com/en/article/ishizuchi\" target=\"_blank\" rel=\"noopener\">에키탄 이시즈치</a> · <a href=\"https://www.smarttoday.co.kr/ko-kr/articles/113257\" target=\"_blank\" rel=\"noopener\">청주–마쓰야마 취항 기사</a>";
 })();
 </script>
