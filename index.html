@@ -84,6 +84,14 @@ ul.plain{margin:6px 0 0;padding-left:20px}ul.plain li{margin:4px 0}
 .card .vb{position:absolute;right:10px;top:10px}
 .nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
 .meta a.go{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:5px 10px;border-radius:8px;min-height:32px;line-height:22px}
+.wheelbox{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:10px}
+.wheelwrap{position:relative;width:min(340px,100%);aspect-ratio:1}
+.wheelwrap canvas{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:22px solid var(--red);z-index:2}
+.spin{font:inherit;font-weight:900;font-size:17px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:99px;padding:12px 34px;min-height:48px;cursor:pointer}
+.spin:disabled{opacity:.55;cursor:default}
+.result{width:100%;max-width:520px}
+.hist{font-size:12.5px;color:var(--muted);text-align:center}
 @media (prefers-reduced-motion:no-preference){.tab,.chip{transition:background .15s}}
 </style>
 </head>
@@ -218,9 +226,9 @@ function prog(){
 }
 var TAB="d1";
 function drawTabs(){
-  var t=DAYS.map(function(d){return[d.id,d.tab];}).concat([["onsen","온천"],["food","식당"],["cost","교통·비용"],["info","준비"]]);
+  var t=DAYS.map(function(d){return[d.id,d.tab];}).concat([["onsen","온천"],["food","식당"],["cost","교통·비용"],["info","준비"],["wheel","🎡 뽑기"]]);
   $("tabs").innerHTML="";
-  t.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="tab";b.setAttribute("role","tab");b.setAttribute("aria-selected",TAB===x[0]);b.textContent=x[1];b.onclick=function(){TAB=x[0];drawTabs();drawView();try{window.scrollTo({top:0});}catch(e){}};$("tabs").appendChild(b);});
+  t.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="tab";b.setAttribute("role","tab");b.setAttribute("aria-selected",TAB===x[0]);b.textContent=x[1];b.onclick=function(){if(WRAF)cancelAnimationFrame(WRAF);WSPIN=false;TAB=x[0];drawTabs();drawView();try{window.scrollTo({top:0});}catch(e){}};$("tabs").appendChild(b);});
 }
 function card(it){
   var chk=!!done[it.id],can=!(it.k==="항공"||it.k==="이동");
@@ -231,8 +239,74 @@ function card(it){
   if(can)h+="<label class=\"done\"><input type=\"checkbox\" data-id=\""+it.id+"\""+(chk?" checked":"")+"> 다녀왔어요</label>";
   return h+"</div>";
 }
+
+var WCAT="all",WHIST=[],WANG=0,WRAF=0,WSPIN=false,WRES=null;
+var WCATS=[["all","전체"],["food","식당 전체"],["udon","우동"],["tai","향토요리"],["snack","간식"],["sight","명소"],["onsen","온천"]];
+function pool(cat){
+  var out=[],seen={};
+  function add(o){if(seen[o.name])return;seen[o.name]=1;out.push(o);}
+  FOOD.forEach(function(f){add({kind:f.c,name:f.n,label:f.n,sub:f.j+" · "+f.a,desc:f.d+" · "+f.t,price:f.p,q:f.j+" "+f.a});});
+  DAYS.forEach(function(d){d.items.forEach(function(it){if(it.k==="명소")add({kind:"sight",name:it.nm,label:it.nm,sub:it.jp,desc:it.d,price:it.pn||yen(it.p),q:it.q});if(it.k==="온천")add({kind:"onsen",name:it.nm,label:it.nm,sub:it.jp,desc:it.d,price:it.pn||yen(it.p),q:it.q});});});
+  ONSEN.forEach(function(o){add({kind:"onsen",name:o.n,label:o.n,sub:o.j+" · "+o.a,desc:o.t,price:o.p,q:o.j+" "+o.a});});
+  return out.filter(function(o){return cat==="all"||(cat==="food"?(o.kind==="udon"||o.kind==="tai"||o.kind==="snack"):o.kind===cat);});
+}
+function rnd(n){try{var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}catch(e){return Math.floor(Math.random()*n);}}
+function isDark(){var c=getComputedStyle(document.body).backgroundColor.match(/\d+/g)||[255,255,255];return (+c[0]+ +c[1]+ +c[2])<300;}
+function drawWheel(items,ang){
+  var cv=$("wheel");if(!cv)return;var W=cv.width,ctx=cv.getContext("2d"),r=W/2-4,n=items.length,dk=isDark();
+  ctx.clearRect(0,0,W,W);ctx.save();ctx.translate(W/2,W/2);ctx.rotate(ang);
+  var sa=2*Math.PI/n;
+  for(var i=0;i<n;i++){
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*sa,(i+1)*sa);ctx.closePath();
+    ctx.fillStyle="hsl("+((i*47)%360)+","+(dk?"38%":"55%")+","+(dk?"32%":"78%")+")";ctx.fill();
+    ctx.strokeStyle=dk?"#0F1613":"#fff";ctx.lineWidth=2;ctx.stroke();
+    if(n<=16){
+      ctx.save();ctx.rotate(i*sa+sa/2);ctx.textAlign="right";ctx.fillStyle=dk?"#E5EEE9":"#17231F";
+      ctx.font="700 "+Math.max(20,Math.min(30,W/n/1.5))+"px 'Noto Sans KR',sans-serif";ctx.textBaseline="middle";
+      var t=items[i].label;if(t.length>9)t=t.slice(0,8)+"…";ctx.fillText(t,r-12,0);ctx.restore();
+    }
+  }
+  ctx.restore();
+  ctx.beginPath();ctx.arc(W/2,W/2,22,0,2*Math.PI);ctx.fillStyle=dk?"#17211D":"#fff";ctx.fill();ctx.strokeStyle=dk?"#2C3C35":"#D5DDD8";ctx.lineWidth=2;ctx.stroke();
+}
+function showResult(o){
+  var h="<div class=\"card\" style=\"padding-bottom:12px\"><span class=\"tm\">뽑힌 곳</span><span class=\"nm\">"+esc(o.name)+"</span><span class=\"jp\">"+esc(o.sub)+"</span><p>"+esc(o.desc)+"</p><div class=\"meta\"><span class=\"pr\">"+esc(o.price)+"</span><a class=\"go\" href=\""+dir(o.q)+"\" target=\"_blank\" rel=\"noopener\">현위치에서 길찾기 ↗</a><a href=\""+gm(o.q)+"\" target=\"_blank\" rel=\"noopener\">지도 보기 ↗</a></div></div>";
+  $("res").innerHTML=h;
+  $("hist").textContent=WHIST.length?"최근 결과: "+WHIST.slice(-5).reverse().join(" · "):"";
+}
+function spin(){
+  if(WSPIN)return;var items=pool(WCAT);if(!items.length)return;
+  var n=items.length,idx=rnd(n),sa=2*Math.PI/n;
+  var jit=(Math.random()-.5)*sa*.7;
+  /* pointer at top (-90deg). segment idx center at idx*sa+sa/2 + ang must equal -PI/2 mod 2PI */
+  var target=-Math.PI/2-(idx*sa+sa/2)-jit;
+  var cur=WANG%(2*Math.PI);var turns=5+rnd(3);
+  var end=WANG-cur+turns*2*Math.PI+((target%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  if(end<WANG+4*Math.PI)end+=2*Math.PI;
+  var reduce=false;try{reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
+  var start=WANG,t0=null,dur=reduce?10:4200;WSPIN=true;$("spinbtn").disabled=true;$("res").innerHTML="";
+  function fin(){WANG=end;drawWheel(items,WANG);WSPIN=false;var b=$("spinbtn");if(b)b.disabled=false;WHIST.push(items[idx].name);WRES=items[idx];showResult(items[idx]);}
+  function step(ts){
+    if(!$("wheel")){WSPIN=false;return;}
+    if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur),e=1-Math.pow(1-p,3.4);
+    drawWheel(items,start+(end-start)*e);
+    if(p<1)WRAF=requestAnimationFrame(step);else fin();
+  }
+  WRAF=requestAnimationFrame(step);
+}
+function drawWheelView(){
+  var h="<h3 style=\"margin:8px 0\">🎡 결정장애 뽑기</h3><p class=\"sub\" style=\"margin:0\">고르기 어려울 때 돌리세요. 종류를 고르면 그 안에서만 뽑습니다.</p><div class=\"chips\" style=\"margin-top:10px\">";
+  WCATS.forEach(function(c){h+="<button type=\"button\" class=\"chip\" data-w=\""+c[0]+"\" aria-pressed=\""+(WCAT===c[0])+"\">"+c[1]+" <small>("+pool(c[0]).length+")</small></button>";});
+  h+="</div><div class=\"wheelbox\"><div class=\"wheelwrap\"><div class=\"pointer\"></div><canvas id=\"wheel\" width=\"680\" height=\"680\" role=\"img\" aria-label=\"뽑기 휠\"></canvas></div><button type=\"button\" class=\"spin\" id=\"spinbtn\">돌리기</button><div class=\"result\" id=\"res\"></div><div class=\"hist\" id=\"hist\"></div></div>";
+  $("view").innerHTML=h;
+  var items=pool(WCAT);drawWheel(items,WANG);
+  var ch=$("view").querySelectorAll(".chip");for(var i=0;i<ch.length;i++){ch[i].onclick=function(){if(WSPIN)return;WCAT=this.getAttribute("data-w");WRES=null;drawWheelView();};}
+  $("spinbtn").onclick=spin;
+  if(WRES&&!WSPIN){showResult(WRES);}
+}
 function drawView(){
   var v=$("view"),h="";
+  if(TAB==="wheel"){drawWheelView();return;}
   var day=DAYS.filter(function(d){return d.id===TAB;})[0];
   if(day){
     var tot=0;day.items.forEach(function(it){tot+=it.p||0;});
