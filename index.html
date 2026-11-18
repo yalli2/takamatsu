@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>다카마쓰 마쓰야마 시코쿠 3박4일</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 위에 경로 약도, 그 아래 일차 탭 + 시간표. 보조 탭은 온천/식당/교통·비용/확인사항 */
+:root{
+  --bg:#F4F6F4;--surface:#FFFFFF;--surface2:#E9EFEC;--ink:#17231F;--muted:#58675F;--line:#D5DDD8;
+  --accent:#1F6F5C;--accent-ink:#FFFFFF;--sea:#D4E7EA;--land:#E1E8DF;--landline:#B8C5BA;
+  --red:#C0392B;--warn:#8F5600;--warn-bg:#FFF1D6;--ok:#2C7A3F;
+  --f:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1613;--surface:#17211D;--surface2:#1F2D27;--ink:#E5EEE9;--muted:#98A8A0;--line:#2C3C35;
+  --accent:#5CC4A6;--accent-ink:#06241B;--sea:#15303A;--land:#25362D;--landline:#3D5448;
+  --red:#EE7B6D;--warn:#F0B35A;--warn-bg:#33270F;--ok:#6BC283;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1613;--surface:#17211D;--surface2:#1F2D27;--ink:#E5EEE9;--muted:#98A8A0;--line:#2C3C35;
+  --accent:#5CC4A6;--accent-ink:#06241B;--sea:#15303A;--land:#25362D;--landline:#3D5448;
+  --red:#EE7B6D;--warn:#F0B35A;--warn-bg:#33270F;--ok:#6BC283;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:960px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:clamp(22px,5vw,30px);font-weight:900;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px}
+h2{font-size:12px;letter-spacing:.08em;color:var(--muted);margin:0 0 8px;font-weight:700;text-transform:uppercase}
+.map{width:100%;height:auto;display:block;background:var(--sea);border-radius:10px}
+.map .land{fill:var(--land);stroke:var(--landline);stroke-width:1}
+.map .rt{fill:none;stroke:var(--red);stroke-width:2.2;stroke-dasharray:6 4}
+.map .pt circle{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.map .pt text{font-size:12px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:3px}
+.map .pt .n{fill:var(--accent-ink);stroke:none;font-family:var(--mono);font-size:10px;text-anchor:middle}
+.legend{font-size:12px;color:var(--muted);margin-top:6px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:thin}
+.tab{flex:none;font:inherit;font-size:14px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:8px 14px;cursor:pointer;min-height:40px}
+.tab[aria-selected=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tab:focus-visible,.chip:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dayhead{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin:6px 0 2px}
+.dayhead h3{margin:0;font-size:20px;font-weight:900}
+.pill{display:inline-block;background:var(--surface2);border-radius:99px;padding:1px 9px;font-size:12px;color:var(--muted);font-weight:700}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.ok{color:var(--ok)}
+.card{position:relative;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 12px 46px;margin-top:10px}
+.card.checked{background:var(--surface2)}
+.card.checked .nm{text-decoration:line-through;text-decoration-thickness:1px}
+.card .tm{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.card .nm{display:block;font-weight:900;font-size:17px}
+.card .jp{display:block;color:var(--muted);font-size:12px}
+.card p{margin:6px 0 0;font-size:14px}
+.tip{color:var(--warn);font-size:13.5px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:12.5px;color:var(--muted);align-items:center}
+.meta .pr{font-family:var(--mono);color:var(--ink)}
+.meta a{color:var(--accent);font-weight:700}
+.done{position:absolute;right:10px;bottom:8px;display:flex;gap:7px;align-items:center;font-size:13px;font-weight:700;cursor:pointer;min-height:32px}
+.done input{width:20px;height:20px;accent-color:var(--accent);margin:0}
+.move{background:var(--surface2);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:14px}
+.move b{display:block;font-size:13px;color:var(--accent)}
+.sum{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.stat{background:var(--surface2);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--muted)}
+.stat b{display:block;font-family:var(--mono);font-size:17px;color:var(--ink);font-weight:600}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;font-size:13px;font-weight:700}
+.prog .tr{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}.prog .tr i{display:block;height:100%;background:var(--ok)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.item{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--surface);min-width:0}
+.item b{display:block;font-size:16px}.item small{color:var(--muted);display:block}
+.item .pr{font-family:var(--mono);font-size:13px;margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:99px;cursor:pointer;min-height:36px}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-size:12px}td.r,th.r{text-align:right;font-family:var(--mono)}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+ul.plain{margin:6px 0 0;padding-left:20px}ul.plain li{margin:4px 0}
+.foot{font-size:12px;color:var(--muted);margin-top:18px}.foot a{color:var(--accent)}
+.card .vb{position:absolute;right:10px;top:10px}
+@media (prefers-reduced-motion:no-preference){.tab,.chip{transition:background .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>다카마쓰 → 마쓰야마 시코쿠 3박 4일</h1>
+  <p class="sub">2027년 1월 9일(토)–12일(화) · 인천 출발 다카마쓰 입국 · 마쓰야마 출국 청주 도착 · 우동, 온천, 성과 신사</p>
+
+  <section class="panel" aria-label="경로">
+    <h2>이동 경로</h2>
+    <svg id="map" class="map" viewBox="0 0 400 230" role="img" aria-label="시코쿠 북부 경로 약도"></svg>
+    <p class="legend">점선은 철도 이동입니다. 약도라 실제 지형과 거리는 다릅니다. 1일차 다카마쓰 → 고토히라(숙박) → 2일차 마쓰야마·도고온천(2박) → 4일차 마쓰야마 공항.</p>
+  </section>
+
+  <div class="warnbox" id="warn"></div>
+
+  <div class="prog" id="prog"></div>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div id="view"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* v: ok 확인된 정보 / est 추정 / chk 예약·시간 확인 필요 */
+var DAYS=[
+{id:"d1",tab:"1일차 1/9(토)",date:"1월 9일 토요일",title:"도착 · 다카마쓰 우동과 리쓰린 공원 · 고토히라 온천 숙박",stay:"고토히라 온천 료칸",items:[
+ {t:"08:45",k:"항공",nm:"인천 → 다카마쓰 에어서울 RS297",jp:"ICN 08:45 → TAK 10:30",d:"약 1시간 40분. 조식 직후 도착이라 첫날 오후를 통째로 쓸 수 있습니다. 14:10 출발 진에어 LJ299(15:50 도착)도 있지만 그 편이면 리쓰린 공원은 빼세요.",tip:"운항 요일과 시각은 항공사에서 최종 확인하세요. 수하물은 고토히라까지 들고 갑니다.",p:0,v:"chk",q:"Takamatsu Airport"},
+ {t:"10:30",k:"이동",nm:"공항에서 시내로",jp:"高松空港 → 高松駅",d:"공항버스로 시내까지 약 40분. 요금은 현지에서 확인해야 합니다.",tip:"짐은 JR 다카마쓰역 코인로커에 맡기고 움직이면 편합니다.",p:1000,pn:"버스 약 ¥1,000 추정",v:"est",q:"Takamatsu Station"},
+ {t:"12:00",k:"식당",nm:"데우치 우동 하리야",jp:"手打うどん はりや",d:"고토덴 고자이역 근처의 사누키 우동 인기점. 가격대 ¥1,000–1,999. 면이 떨어지면 일찍 문을 닫습니다.",tip:"일요일·공휴일 휴무입니다. 토요일인 오늘만 갈 수 있고 대기가 깁니다. 줄이 길면 가와라마치의 사누키 멘노스케(조리 약 20분)로 바꾸세요.",p:1200,pn:"¥1,000–1,999",v:"chk",q:"Teuchi Udon Hariya Takamatsu"},
+ {t:"13:45",k:"명소",nm:"리쓰린 공원",jp:"栗林公園",d:"에도 시대 다이묘 정원. 연못과 소나무, 다실에서 말차를 즐기며 1.5–2시간 걷기 좋습니다.",tip:"1월 개원 7:00–17:00. 일몰이 17시 10분 무렵이라 15시 30분까지는 입장하세요. 연못 보트와 다실은 겨울에 운영 시간이 짧을 수 있습니다.",p:500,pn:"성인 ¥500 / 어린이 ¥170",v:"ok",q:"Ritsurin Garden"},
+ {t:"16:20",k:"이동",nm:"고토덴으로 고토히라",jp:"高松築港 → 琴電琴平",d:"고토덴(다카마쓰 지쿠코역)에서 약 1시간, 편도 ¥730. 약 30분 간격. JR 패스는 쓸 수 없습니다. JR 완행도 약 1시간 ¥980입니다.",tip:"짐이 있으면 JR 다카마쓰역에서 찾아서 지쿠코역으로 이동하세요.",p:730,pn:"¥730",v:"ok",q:"Takamatsu-Chikko Station"},
+ {t:"18:00",k:"온천",nm:"고토히라 온천 료칸 숙박",jp:"琴平温泉",d:"고토히라궁 앞에 퍼진 온천 마을. 숙소 대욕장을 쓰는 것이 일반적입니다. 석식 포함 플랜이 많습니다.",tip:"일일입욕 가능 여부는 숙소마다 달라서 예약할 때 물어보세요. 내일 아침 계단이 있으니 일찍 쉬세요.",p:0,pn:"숙박비 별도",v:"chk",q:"Kotohira Onsen"}
+]},
+{id:"d2",tab:"2일차 1/10(일)",date:"1월 10일 일요일",title:"곤피라 계단 · 마쓰야마 이동 · 도고온천 본관",stay:"도고온천 주변",items:[
+ {t:"08:30",k:"명소",nm:"곤피라상 (고토히라궁) 오르기",jp:"金刀比羅宮",d:"본궁까지 785계단(편도 30–40분), 안쪽 오쿠샤까지 1,368계단입니다. 본궁까지는 왕복 1.5–2시간, 오쿠샤까지는 2.5–3시간을 잡으세요. 참배는 무료입니다.",tip:"운동화와 장갑이 필요합니다. 1월 아침은 영하에 가깝고 계단 일부가 젖어 미끄럽습니다. 힘들면 본궁에서 돌아오세요.",p:0,pn:"무료",v:"ok",q:"Kotohira-gu"},
+ {t:"11:15",k:"명소",nm:"선택: 가나마루자 · 긴료 사케 박물관",jp:"金丸座 · 金陵の郷",d:"가나마루자(옛 가부키 극장) 견학 ¥500, 긴료 사케 박물관 약 ¥310. 둘 다 참배길 가까이 있습니다.",tip:"가나마루자는 공연이나 행사가 있는 날 견학이 닫힙니다.",p:500,pn:"가나마루자 ¥500, 긴료 약 ¥310",v:"chk",q:"Kanamaruza Kotohira"},
+ {t:"12:00",k:"식당",nm:"참배길 사누키 우동",jp:"琴平参道のうどん",d:"참배길(오모테산도)에 우동 가게가 줄지어 있습니다. 간식을 곁들여 ¥1,000–1,500을 예산으로 잡으세요.",tip:"일요일이라 문을 닫는 가게가 있으니 연 곳 중에서 고르세요.",p:1200,pn:"¥1,000–1,500",v:"est",q:"Kotohira udon"},
+ {t:"13:30",k:"이동",nm:"고토히라 → 마쓰야마 (JR)",jp:"琴平 → 多度津 → 松山",d:"JR 도산선 고토히라에서 다도쓰로 나가 특급 이시즈치/시오카제로 갈아탑니다. 다카마쓰에서 마쓰야마까지 특급은 약 2시간 30분, 지정석 ¥6,800입니다. 고토히라발은 갈아타는 시간을 더해 3시간 안팎, ¥5,500–6,000쯤으로 추정합니다.",tip:"갈아타는 연결과 자리는 JR 시코쿠 앱이나 에키탄에서 확인하세요. 짐이 많으면 지정석이 편합니다.",p:5800,pn:"약 ¥5,500–6,000 추정",v:"est",q:"Matsuyama Station"},
+ {t:"17:00",k:"이동",nm:"마쓰야마 → 도고온천 노면전차",jp:"松山市駅 → 道後温泉",d:"JR 마쓰야마역에서 5계통 전차로 약 20분, 마쓰야마시역에서는 3계통으로 약 15분. 종점인 도고온천역에서 본관까지 걸어서 4분입니다.",tip:"전차는 내릴 때 내는 균일 요금(약 ¥160–210)입니다. 잔돈을 준비하세요.",p:200,pn:"약 ¥160–210",v:"est",q:"Dogo Onsen Station"},
+ {t:"18:00",k:"온천",nm:"도고온천 본관",jp:"道後温泉本館",d:"일본에서 가장 오래된 온천으로 알려져 있고 국가 중요문화재입니다. 가미노유 ¥700, 가미노유 2층 휴게석 ¥1,300, 다마노유 2층 ¥2,000(유카타·차·과자·유신덴 관람 포함). 1회 60분입니다.",tip:"1층 가미노유는 6:00–23:00(입장 마감 22:30), 2층 코스는 입장 마감 21:00입니다. 예약은 받지 않아 줄이 길면 기다립니다. 개별실 코스는 온라인 예약이 필요합니다.",p:1300,pn:"¥700–2,000 / 아동 반액",v:"ok",q:"Dogo Onsen Honkan"},
+ {t:"19:45",k:"식당",nm:"도고 상점가 저녁",jp:"道後温泉 商店街",d:"도미 밥(다이메시)이나 자코텐(생선 어묵 튀김)을 드세요. 다니모토 가마보코 도고점은 자코텐, 가도야 오카이도점은 우와지마 타이메시로 알려져 있습니다.",tip:"주말 저녁 가이세키는 일찍 마감됩니다. 영업시간·휴무는 방문 전에 확인하세요.",p:2500,pn:"¥1,500–3,000 추정",v:"est",q:"Dogo Onsen shopping street"}
+]},
+{id:"d3",tab:"3일차 1/11(월)",date:"1월 11일 월요일 (성인의 날, 일본 공휴일)",title:"마쓰야마성 · 우치코 마을 · 도고 온천 마무리",stay:"도고온천 주변",items:[
+ {t:"07:00",k:"온천",nm:"선택: 도고온천 이른 아침 입욕",jp:"道後温泉本館 6:00開館",d:"본관이 6시에 열어 아침 입욕은 한적합니다. 가미노유 1층은 ¥700입니다.",tip:"공휴일이라 평소보다 붐빌 수 있습니다.",p:700,pn:"¥700",v:"ok",q:"Dogo Onsen Honkan"},
+ {t:"09:00",k:"명소",nm:"마쓰야마성",jp:"松山城",d:"1602년에 짓기 시작한 성으로, 에도 시대에 지은 천수가 남아 있는 12천수 중 하나입니다. 최상층에서 시내가 내려다보입니다. 천수 ¥520, 케이블카·리프트 왕복 ¥520.",tip:"1월 천수 9:00–16:30(입장 마감 30분 전), 케이블카·리프트 8:30–17:00입니다. 리프트는 비 오는 날 운행하지 않습니다. 걸어 올라가도 되지만 겨울에는 케이블카가 편합니다.",p:1040,pn:"천수 ¥520 + 승강 ¥520",v:"ok",q:"Matsuyama Castle"},
+ {t:"11:30",k:"식당",nm:"오카이도 타이메시 점심",jp:"大街道 · 鯛めし",d:"마쓰야마의 도미 밥은 날생선을 양념에 재워 올리는 방식과 통째로 쪄서 넣는 방식이 있습니다. 오카이도의 원조 우와지마 타이메시 마루스이 본점, 고시키가 알려져 있습니다.",tip:"공휴일이라 점심 대기가 생깁니다. 11시 30분 전에 도착하세요.",p:2000,pn:"¥1,500–2,500 추정",v:"est",q:"Marusui Honten Okaido Matsuyama"},
+ {t:"13:00",k:"이동",nm:"JR 요산선으로 우치코",jp:"松山 → 内子",d:"왕복 ¥1,600–1,800, 약 40분. 열차 수가 많지 않아 시각표를 미리 보고 가세요.",tip:"돌아오는 마지막 시간대를 확인하세요. 우치코 상점은 17시 무렵 닫습니다.",p:1700,pn:"왕복 약 ¥1,700",v:"est",q:"Uchiko Station"},
+ {t:"13:45",k:"명소",nm:"우치코 요카이치 · 우치코자",jp:"内子 八日市護国 · 内子座",d:"밀랍 장사로 번성한 옛 상인 거리의 격자창 집들과 1916년에 지은 가부키 극장 우치코자가 있습니다. 천천히 걸으면 2시간입니다.",tip:"우치코자는 입장료가 있으나 금액은 현지에서 확인하세요. 월요일 휴관 여부도 확인이 필요합니다.",p:400,pn:"입장료 확인 필요",v:"chk",q:"Uchiko-za"},
+ {t:"18:00",k:"온천",nm:"아스카노유 또는 쓰바키노유",jp:"飛鳥乃湯泉 · 椿の湯",d:"본관 외에 도고에는 공공 온천이 더 있습니다. 아스카노유는 노천탕이 있고 6:00–22:00입니다. 본관·쓰바키노유·아스카노유를 묶은 3탕 투어 티켓은 성인 ¥1,440입니다.",tip:"본관을 이미 다녀왔다면 아스카노유가 사람이 적습니다.",p:1440,pn:"3탕 티켓 ¥1,440 / 아동 ¥680",v:"ok",q:"Asuka-no-yu Dogo"},
+ {t:"19:30",k:"식당",nm:"치후네마치 와쇼쿠 미요시",jp:"和食 みよし",d:"마쓰야마 시내 치후네마치 거리의 일식집. 모둠회와 가키아게가 알려져 있고 가격은 합리적이라고 소개됩니다.",tip:"공휴일 영업 여부는 전화로 확인하세요.",p:3500,pn:"¥3,000–4,500 추정",v:"chk",q:"Washoku Miyoshi Matsuyama"}
+]},
+{id:"d4",tab:"4일차 1/12(화)",date:"1월 12일 화요일",title:"아침 온천 · 이시테지 · 마쓰야마 공항 → 청주",stay:"귀국",items:[
+ {t:"06:30",k:"온천",nm:"도고온천 본관 아침 입욕",jp:"道後温泉本館",d:"마지막 아침 목욕입니다. 아침에는 사람이 적고 1회 60분이면 충분합니다.",tip:"짐은 체크아웃 후 호텔에 맡기세요.",p:700,pn:"¥700",v:"ok",q:"Dogo Onsen Honkan"},
+ {t:"08:30",k:"명소",nm:"이시테지 (시코쿠 51번 사찰)",jp:"石手寺",d:"도고온천에서 동쪽으로 걸어서 약 15분. 어두운 동굴 통로가 특징이고 경내는 무료, 보물관은 약 ¥200입니다. 7:00–17:00.",tip:"항공편이 이르면 생략하세요.",p:200,pn:"경내 무료, 보물관 약 ¥200",v:"est",q:"Ishite-ji Matsuyama"},
+ {t:"10:00",k:"쇼핑",nm:"도고 하이카라 거리 · 봇짱 시계",jp:"道後ハイカラ通り",d:"도고온천역 앞 봇짱 가라쿠리 시계는 매시 정각에 공연을 합니다. 봇짱 당고(쓰보야 가시호), 도고 밀크치즈케이크가 알려져 있습니다.",tip:"귤 주스와 기념품은 여기서 사세요. 공항에서는 선택지가 적습니다.",p:1500,pn:"¥500–2,000",v:"est",q:"Dogo Haikara Street"},
+ {t:"11:30",k:"식당",nm:"점심: 타이야 타이메시 또는 자코텐",jp:"鯛や · じゃこ天",d:"마지막 점심으로 타이야의 미쓰하마 타이메시 정식이나 다니모토 가마보코의 자코텐을 드세요.",tip:"마쓰야마 공항 식당은 한정적입니다.",p:2000,pn:"¥1,500–2,500 추정",v:"est",q:"Taiya Matsuyama tai meshi"},
+ {t:"13:00",k:"이동",nm:"마쓰야마 공항으로",jp:"松山空港",d:"시내에서 공항까지 버스나 택시로 약 20–25분입니다. 국제선은 2시간 전까지 체크인하세요.",tip:"요금은 현지에서 확인하세요.",p:800,pn:"버스 약 ¥800 추정",v:"est",q:"Matsuyama Airport"},
+ {t:"항공",k:"항공",nm:"마쓰야마 → 청주 에어로케이",jp:"MYJ → CJJ",d:"2027년 1월 2일부터 화·목·토 주 3회 정기편이 시작됩니다. 1월 12일은 화요일이라 운항일입니다.",tip:"출발 시각은 확인하지 못했습니다. 2026년 10월 운항분은 마쓰야마 18:25 → 청주 19:50이었으나 1월 시각은 다를 수 있습니다. 시각이 정해지면 위 일정에서 이시테지와 쇼핑을 조정하세요.",p:0,pn:"항공권 별도",v:"chk",q:"Matsuyama Airport"}
+]}
+];
+
+var ONSEN=[
+ {n:"도고온천 본관",j:"道後温泉本館",a:"마쓰야마 도고",p:"가미노유 ¥700 · 2층 ¥1,300 · 다마노유 ¥2,000 · 개별실 ¥2,500",t:"1층 6:00–23:00, 2층 6:00–22:00. 아동 반액(2–11세). 예약 없이 입장하지만 개별실과 유신덴은 온라인 예약이 필요합니다.",v:"ok"},
+ {n:"아스카노유 · 쓰바키노유",j:"飛鳥乃湯泉 · 椿の湯",a:"마쓰야마 도고",p:"3탕 티켓 ¥1,440 (아동 ¥680)",t:"아스카노유는 6:00–22:00, 노천탕이 있습니다. 본관보다 한적합니다.",v:"ok"},
+ {n:"고토히라 온천 료칸",j:"琴平温泉",a:"고토히라",p:"숙박비 별도",t:"고토히라궁 앞 온천 마을. 숙소 대욕장을 쓰는 것이 일반적이라 일일입욕은 숙소에 문의해야 합니다.",v:"chk"}
+];
+
+var FOOD=[
+ {n:"데우치 우동 하리야",j:"手打うどん はりや",a:"다카마쓰",c:"udon",d:"우동",p:"¥1,000–1,999",t:"고토덴 고자이역 인근. 일요일·공휴일 휴무. 줄이 길고 면이 다 나가면 문을 닫습니다.",v:"chk"},
+ {n:"사누키 멘노스케",j:"讃岐麺之助",a:"다카마쓰",c:"udon",d:"우동",p:"¥999 이하",t:"가와라마치 1초메. 낮과 저녁 2부제. 주문 후 조리해서 약 20분 걸립니다.",v:"chk"},
+ {n:"우동 바카이치다이",j:"うどんバカ一代",a:"다카마쓰",c:"udon",d:"우동",p:"¥999 이하",t:"새벽 6시에 열지만 아침에도 1–1.5시간 대기하는 후기가 있습니다. 시간 여유가 있을 때만 추천합니다.",v:"chk"},
+ {n:"데우치 우동 마스야",j:"手打うどん ますや",a:"다카마쓰",c:"udon",d:"우동",p:"¥999 이하",t:"11:00 오픈. 한 시경 매진 마감하는 날이 있어 일찍 가야 합니다.",v:"chk"},
+ {n:"마하루",j:"まはる",a:"다카마쓰",c:"udon",d:"우동",p:"¥999 이하",t:"야시마역 근처 셀프식. 일요일 휴무.",v:"chk"},
+ {n:"오우동 세토바레",j:"おうどん 瀬戸晴れ",a:"다카마쓰",c:"udon",d:"우동",p:"¥999 이하",t:"수·목 휴무. 평일 오전 30–40분 대기 후기가 있습니다.",v:"chk"},
+ {n:"우와지마 타이메시 마루스이 본점",j:"元祖宇和島鯛めし 丸水",a:"마쓰야마 오카이도",c:"tai",d:"도미 밥",p:"¥1,500–2,500 추정",t:"오카이도 상점가. 우와지마식 타이메시로 알려져 있습니다.",v:"chk"},
+ {n:"가도야 오카이도점",j:"かどや",a:"마쓰야마 오카이도",c:"tai",d:"타이메시, 코스 요리",p:"추정 ¥2,500–5,000",t:"마쓰야마성과 도고온천 사이. 저녁 코스가 있습니다.",v:"chk"},
+ {n:"타이야",j:"鯛や",a:"마쓰야마",c:"tai",d:"미쓰하마 타이메시 정식",p:"¥1,500–2,500 추정",t:"미쓰하마식 도미 밥 정식으로 소개됩니다.",v:"chk"},
+ {n:"향토 요리 고시키",j:"郷土料理 五志喜",a:"마쓰야마",c:"tai",d:"타이메시 · 고시키 소면",p:"추정",t:"우와지마식과 마쓰야마식 타이메시를 모두 냅니다.",v:"chk"},
+ {n:"다니모토 가마보코 도고점",j:"谷本蒲鉾店 道後店",a:"도고",c:"snack",d:"자코텐",p:"¥300–800 추정",t:"튀긴 생선 어묵. 걸으며 먹는 간식으로 좋습니다.",v:"chk"},
+ {n:"와쇼쿠 미요시",j:"和食 みよし",a:"마쓰야마 치후네마치",c:"tai",d:"모둠회 · 가키아게",p:"합리적",t:"치후네마치 거리의 일식집.",v:"chk"},
+ {n:"쓰보야 가시호",j:"坪屋菓子舗",a:"마쓰야마",c:"snack",d:"봇짱 당고",p:"¥500 내외 추정",t:"3색 꼬치 모찌.",v:"chk"},
+ {n:"도고 밀크 치즈케이크",j:"道後ミルクチーズケーキ",a:"도고",c:"snack",d:"치즈케이크",p:"추정",t:"도고온천역 부근 디저트.",v:"chk"}
+];
+
+
+var CSEL="all";
+function $(i){return document.getElementById(i);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function yen(n){return "¥"+Math.round(n).toLocaleString("en-US");}
+var done={};try{var d0=JSON.parse(localStorage.getItem("tk_done")||"{}");if(d0&&typeof d0==="object")done=d0;}catch(e){}
+function save(){try{localStorage.setItem("tk_done",JSON.stringify(done));}catch(e){}}
+function vb(v){return v==="ok"?"<span class=\"pill ok\">확인됨</span>":v==="est"?"<span class=\"pill\">추정</span>":"<span class=\"pill warn\">출발 전 확인</span>";}
+function gm(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);}
+
+/* map */
+var LL={tak:[134.05,34.34],kot:[133.82,34.19],mat:[132.77,33.84],uch:[132.66,33.54]};
+function px(lo,la){return[(lo-131.8)*95+20,(34.6-la)*165+14];}
+function drawMap(){
+  var poly=[[134.65,34.25],[134.05,34.35],[133.5,34.3],[133.0,34.07],[132.5,33.95],[132.0,33.38],[132.45,32.9],[132.95,32.73],[133.35,33.2],[133.7,33.5],[134.2,33.3],[134.6,33.6],[134.7,34.0]];
+  var h="<polygon class=\"land\" points=\""+poly.map(function(p){var q=px(p[0],p[1]);return q[0].toFixed(1)+","+q[1].toFixed(1);}).join(" ")+"\"/>";
+  var a=px(LL.tak[0],LL.tak[1]),b=px(LL.kot[0],LL.kot[1]),c=px(LL.mat[0],LL.mat[1]),u=px(LL.uch[0],LL.uch[1]);
+  h+="<polyline class=\"rt\" points=\""+a+" "+b+" "+c+"\"/><polyline class=\"rt\" points=\""+c+" "+u+" "+c+"\"/>";
+  [[a,"다카마쓰 (1일)",10,-8],[b,"고토히라 (1·2일)",10,16],[c,"마쓰야마·도고 (2–4일)",10,-10],[u,"우치코 (3일)",10,14]].forEach(function(p){
+    h+="<g class=\"pt\"><circle cx=\""+p[0][0]+"\" cy=\""+p[0][1]+"\" r=\"7\"/>";
+    h+="<text x=\""+(p[0][0]+p[2])+"\" y=\""+(p[0][1]+p[3])+"\" text-anchor=\""+(p[2]<0?"end":"start")+"\">"+esc(p[1])+"</text></g>";
+  });
+  $("map").innerHTML=h;
+}
+
+function renderWarn(){
+  $("warn").innerHTML="<b>출발 전에 꼭 확인하세요.</b> 마쓰야마–청주 에어로케이 정기편은 2027년 1월 2일 취항, 화·목·토 운항으로 보도되었지만 출발 시각은 확인하지 못했습니다. 1월 9–11일은 일본의 3일 연휴(11일은 성인의 날)라 도고온천·우동 가게가 붐비고, 11일 다음 날인 12일에는 일부 시설이 쉴 수 있습니다. 가격은 확인된 값과 추정치를 구분해 표시했습니다.";
+}
+function allSpots(){var a=[];DAYS.forEach(function(d){d.items.forEach(function(it,i){it.id=d.id+"-"+i;a.push(it);});});return a;}
+function prog(){
+  var tot=0,dn=0;DAYS.forEach(function(d){d.items.forEach(function(it){if(it.k==="항공"||it.k==="이동")return;tot++;if(done[it.id])dn++;});});
+  $("prog").innerHTML="<span>다녀온 곳 "+dn+" / "+tot+"</span><span class=\"tr\"><i style=\"width:"+(tot?dn/tot*100:0)+"%\"></i></span>";
+}
+var TAB="d1";
+function drawTabs(){
+  var t=DAYS.map(function(d){return[d.id,d.tab];}).concat([["onsen","온천"],["food","식당"],["cost","교통·비용"],["info","준비"]]);
+  $("tabs").innerHTML="";
+  t.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="tab";b.setAttribute("role","tab");b.setAttribute("aria-selected",TAB===x[0]);b.textContent=x[1];b.onclick=function(){TAB=x[0];drawTabs();drawView();try{window.scrollTo({top:0});}catch(e){}};$("tabs").appendChild(b);});
+}
+function card(it){
+  var chk=!!done[it.id],can=!(it.k==="항공"||it.k==="이동");
+  var h="<div class=\"card"+(chk?" checked":"")+"\" id=\"c-"+it.id+"\"><span class=\"vb\">"+vb(it.v)+"</span>";
+  h+="<span class=\"tm\">"+esc(it.t)+" · "+esc(it.k)+"</span><span class=\"nm\">"+esc(it.nm)+"</span><span class=\"jp\">"+esc(it.jp)+"</span>";
+  h+="<p>"+esc(it.d)+"</p><p class=\"tip\"><b>유의점</b> "+esc(it.tip)+"</p>";
+  h+="<div class=\"meta\"><span class=\"pr\">"+esc(it.pn||yen(it.p))+"</span><a href=\""+gm(it.q)+"\" target=\"_blank\" rel=\"noopener\">지도 보기 ↗</a></div>";
+  if(can)h+="<label class=\"done\"><input type=\"checkbox\" data-id=\""+it.id+"\""+(chk?" checked":"")+"> 다녀왔어요</label>";
+  return h+"</div>";
+}
+function drawView(){
+  var v=$("view"),h="";
+  var day=DAYS.filter(function(d){return d.id===TAB;})[0];
+  if(day){
+    var tot=0;day.items.forEach(function(it){tot+=it.p||0;});
+    h+="<div class=\"dayhead\"><h3>"+esc(day.date)+"</h3></div><p class=\"sub\" style=\"margin:0\">"+esc(day.title)+"</p>";
+    h+="<div class=\"sum\"><div class=\"stat\">1인 지출 합계(추정)<b>"+yen(tot)+"</b></div><div class=\"stat\">숙박<b style=\"font-size:14px;font-family:var(--f)\">"+esc(day.stay)+"</b></div></div>";
+    day.items.forEach(function(it){h+=card(it);});
+  }else if(TAB==="onsen"){
+    h+="<h3 style=\"margin:8px 0\">온천</h3><div class=\"grid\">";
+    ONSEN.forEach(function(o){h+="<div class=\"item\">"+vb(o.v)+"<b>"+esc(o.n)+"</b><small>"+esc(o.j)+" · "+esc(o.a)+"</small><div class=\"pr\">"+esc(o.p)+"</div><p style=\"margin:6px 0 0;font-size:13.5px\">"+esc(o.t)+"</p></div>";});
+    h+="</div><div class=\"warnbox\">문신이 있으면 입장이 제한될 수 있습니다. 어린이는 본관 2–11세 반액입니다. 도고온천 본관은 일부 개별실 코스가 온라인 예약제입니다.</div>";
+  }else if(TAB==="food"){
+    var cats=[["all","전체"],["udon","사누키 우동"],["tai","마쓰야마 향토요리"],["snack","간식"]];
+    h+="<div class=\"chips\">";cats.forEach(function(c){h+="<button type=\"button\" class=\"chip\" data-c=\""+c[0]+"\" aria-pressed=\""+(CSEL===c[0])+"\">"+c[1]+"</button>";});h+="</div><div class=\"grid\">";
+    FOOD.forEach(function(f){if(CSEL!=="all"&&f.c!==CSEL)return;h+="<div class=\"item\">"+vb(f.v)+"<b>"+esc(f.n)+"</b><small>"+esc(f.j)+" · "+esc(f.a)+"</small><small>"+esc(f.d)+"</small><div class=\"pr\">"+esc(f.p)+"</div><p style=\"margin:6px 0 0;font-size:13.5px\">"+esc(f.t)+"</p><a style=\"color:var(--accent);font-weight:700;font-size:13px\" target=\"_blank\" rel=\"noopener\" href=\""+gm(f.j+" "+f.a)+"\">지도 보기 ↗</a></div>";});
+    h+="</div><div class=\"warnbox\">영업시간과 휴무일은 기사에 없어 확인하지 못한 가게가 많습니다. 구글 지도에서 당일 영업 여부를 확인하세요.</div>";
+  }else if(TAB==="cost"){
+    h+="<h3 style=\"margin:8px 0\">이동·비용</h3><div class=\"tw\"><table><thead><tr><th>구간</th><th>수단</th><th>시간</th><th class=\"r\">요금</th></tr></thead><tbody>";
+    [["인천 → 다카마쓰","에어서울 RS297 08:45→10:30","1시간 40분","항공권"],["공항 → 다카마쓰 시내","공항버스","약 40분","약 ¥1,000"],["다카마쓰 → 고토히라","고토덴","약 1시간","¥730"],["다카마쓰 → 고토히라","JR 완행","약 1시간","¥980"],["고토히라 → 마쓰야마","JR + 특급 이시즈치","3시간 안팎(추정)","약 ¥5,500–6,000"],["마쓰야마 → 도고온천","노면전차","15–20분","약 ¥160–210"],["마쓰야마 → 우치코","JR 요산선","약 40분","왕복 약 ¥1,700"],["마쓰야마 → 청주","에어로케이","약 1시간 30분","항공권"]].forEach(function(r){h+="<tr><td>"+r[0]+"</td><td>"+r[1]+"</td><td>"+r[2]+"</td><td class=\"r\">"+r[3]+"</td></tr>";});
+    h+="</tbody></table></div><p class=\"sub\">다카마쓰–마쓰야마 직통 특급은 지정석 ¥6,800입니다. 이 일정은 고토히라를 거쳐 가므로 다도쓰에서 갈아타며 조금 다릅니다.</p>";
+    var rows=[],all=0;DAYS.forEach(function(d){var s=0;d.items.forEach(function(it){s+=it.p||0;});all+=s;rows.push([d.date,s]);});
+    h+="<h3 style=\"margin:18px 0 8px\">일별 1인 지출 (숙박·항공 제외)</h3><div class=\"tw\"><table><tbody>";
+    rows.forEach(function(r){h+="<tr><td>"+esc(r[0])+"</td><td class=\"r\">"+yen(r[1])+"</td></tr>";});
+    h+="<tr><td><b>합계</b></td><td class=\"r\"><b>"+yen(all)+"</b></td></tr></tbody></table></div>";
+    h+="<p class=\"sub\">식사는 점심·저녁 한 끼씩만 넣었습니다. 숙박은 고토히라 온천 료칸 1박, 도고온천 주변 2박을 따로 예약하세요. 아동 요금은 대개 절반입니다.</p>";
+  }else{
+    h+="<h3 style=\"margin:8px 0\">준비 사항</h3><ul class=\"plain\"><li>1월 시코쿠는 낮 기온이 한 자릿수라 얇은 방한복과 장갑, 미끄럽지 않은 신발이 필요합니다.</li><li>고토히라 계단은 신발이 중요합니다. 짐은 숙소에 두고 올라가세요.</li><li>일본 전차는 잔돈을 쓰는 곳이 많습니다. 동전을 준비하세요. IC카드는 지역 전철에서 안 될 수 있습니다.</li><li>숙소: 고토히라는 온천 료칸 1박, 마쓰야마는 도고온천역 도보 권역의 숙소 2박을 추천합니다.</li><li>11일은 성인의 날 공휴일입니다. 식당과 온천이 붐비니 점심은 이르게, 온천은 아침 시간대를 노리세요.</li><li>마쓰야마 출발 시각이 정해지면 4일차 일정을 조정하세요.</li></ul>";
+    h+="<div class=\"warnbox\">확인된 항목은 공식 안내나 여행 매체에서 읽은 값이고, 추정은 제가 범위로 잡은 금액입니다. 예약 전에 공식 사이트로 확인하세요.</div>";
+  }
+  v.innerHTML=h;
+  var cs=v.querySelectorAll("input[data-id]");for(var i=0;i<cs.length;i++){cs[i].onchange=function(){var id=this.getAttribute("data-id");if(this.checked)done[id]=1;else delete done[id];save();var c=$("c-"+id);if(c)c.classList.toggle("checked",this.checked);prog();};}
+  var ch=v.querySelectorAll(".chip");for(var j=0;j<ch.length;j++){ch[j].onclick=function(){CSEL=this.getAttribute("data-c");drawView();};}
+}
+allSpots();drawMap();renderWarn();prog();drawTabs();drawView();
+$("foot").innerHTML="출처: <a href=\"https://dogo.jp/en/honkan.php\" target=\"_blank\" rel=\"noopener\">도고온천 공식</a> · <a href=\"https://www.matsuyamajo.jp/en/guide.html\" target=\"_blank\" rel=\"noopener\">마쓰야마성 공식</a> · <a href=\"http://www.my-kagawa.jp/static/en/ritsurin/access\" target=\"_blank\" rel=\"noopener\">리쓰린 공원</a> · <a href=\"https://ekitan.com/en/article/ishizuchi\" target=\"_blank\" rel=\"noopener\">에키탄 이시즈치</a> · <a href=\"https://www.smarttoday.co.kr/ko-kr/articles/113257\" target=\"_blank\" rel=\"noopener\">청주–마쓰야마 취항 기사</a>";
+})();
+</script>
+</body>
+</html>
